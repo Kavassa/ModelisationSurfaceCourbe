@@ -335,21 +335,46 @@ double bernstein( int i,  int degre, double u)
 	return res;
 }
 
-Grille_flottant creerMatriceCoeffBernstein( int degre,  int nombrePoint)
+double calculDistance(Quadruplet* q1, Quadruplet* q2)
+{
+	return sqrt(pow(q2->x - q1->x,2) + pow(q2->y - q1->y,2) + pow(q2->z - q1->z,2));
+}
+
+Grille_flottant creerMatriceCoeffBernstein( int degre,  Booleen uniforme, Table_quadruplet tab)
 {
 	int i;
 	int j;
+	double u;
 	Grille_flottant mat;
+	double somme_distance = 0.0;
+	double somme_temp = 0.0;
+	for(i = 0; i < tab.nb-1; i++)
+	{
+		somme_distance += calculDistance(&(tab.table[i]), &(tab.table[i+1]));
+	}
 
 	//Allocation de la matrice que l'on va remplir
-	mat = allocationMatrice(degre+1, nombrePoint);
+	mat = allocationMatrice(degre+1, tab.nb); // enlever -1
 
 	//On rempli la grille
 	for( i = 0; i < mat.nb_lignes; i++)
 	{
+		somme_temp = 0.0;
 		for(j = 0; j < mat.nb_colonnes; j++)
 		{
-			mat.grille[i][j] = bernstein(i, degre, (double)j/(nombrePoint-1));
+			if(uniforme)
+				u = (double)j/(tab.nb-1);
+			else
+			{
+				if(j == 0)
+					u = 0.0;
+				else
+				{
+					somme_temp += calculDistance(&(tab.table[j-1]), &(tab.table[j])); 
+					u = somme_temp / somme_distance;
+				}
+			}
+			mat.grille[i][j] = bernstein(i, degre, u); // enlever -1 a nombrepoint
 		}
 	}
 	return mat;
@@ -390,12 +415,12 @@ void affichageTableQuadruplet(Table_quadruplet* tab)
 }
 
 
-Table_quadruplet calcul(int degre, Table_quadruplet tab)
+Table_quadruplet calcul(int degre, Table_quadruplet tab, Booleen uniforme)
 {
 	// B
-	Grille_flottant mat_bernstein = creerMatriceCoeffBernstein(degre, tab.nb);
+	Grille_flottant mat_bernstein = creerMatriceCoeffBernstein(degre, uniforme, tab);
 	// Bt
-	Grille_flottant mat_bernstein_trans = creerMatriceCoeffBernstein(degre, tab.nb);
+	Grille_flottant mat_bernstein_trans = creerMatriceCoeffBernstein(degre, uniforme, tab);
 	mat_bernstein_trans = transposition_matrice(&mat_bernstein);
 	//Px Py Pz
 	Table_flottant x = getCoordX(&tab);

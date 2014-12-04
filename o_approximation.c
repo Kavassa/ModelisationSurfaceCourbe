@@ -15,6 +15,7 @@ struct approximation
 	int m_nb_points_a_afficher;
 	int m_degre;
 	Booleen m_affiche_points_controle;
+	Booleen m_uniforme;
 }; 
 
 
@@ -39,7 +40,7 @@ static void affiche_approximation(struct approximation* a)
 	glEnd();
 
 
-	glBegin(GL_POINTS);	
+	glBegin(GL_LINE_STRIP);	
 	glColor3f(1.0, 0.0, 0.0);
 
 	//Affichage des points de la courbe
@@ -61,59 +62,16 @@ static void changement(struct approximation* a)
 
 	if ( CREATION(a) || CHAMP_CHANGE(a, m_degre) || 
 						CHAMP_CHANGE(a, m_nb_points_a_afficher) ||
-						CHAMP_CHANGE(a, m_tab_points_approx))
+						CHAMP_CHANGE(a, m_tab_points_approx) ||
+						CHAMP_CHANGE(a, m_uniforme))
 	{
-		// fprintf(stderr, "factoriel: 5! = %d\n", factorielle(5)); /*OK*/
-		// fprintf(stderr, "bernstein: %f\n", bernstein(2, 2, 0.5)); /*OK*/
-		// Grille_flottant res = creerMatriceCoeffBernstein(2,4);
-		// Grille_flottant res_trans = creerMatriceCoeffBernstein(2,4);
-		
-		// Table_quadruplet tab;
-		// ALLOUER(tab.table,3);
-		// tab.nb = 3;
-		// tab.table[0].x = 1;
-		// tab.table[1].x = 2;
-		// tab.table[2].x = 3;
+		if(a->m_degre < 0)
+			a->m_degre = 0;
+		else if (a->m_degre >= a->m_tab_points_approx.nb)
+			a->m_degre = a->m_tab_points_approx.nb -1;
 
-		// tab.table[0].y = 4;
-		// tab.table[1].y = 5,
-		// tab.table[2].y = 6;
-		
-		// tab.table[0].z = 7;
-		// tab.table[1].z = 8;
-		// tab.table[2].z = 9;
-		
-		// tab.table[0].h = 10;
-		// tab.table[1].h = 11;
-		// tab.table[2].h = 12;
-		// Table_flottant x = getCoordX(tab);
-		// Table_flottant y = getCoordY(tab);
-		// Table_flottant z = getCoordZ(tab);
-		// affichageTableFlottant(x);
-		// affichageTableFlottant(y);
-		// affichageTableFlottant(z);
-
-		// fprintf(stderr, "matrice:\n");
-		// affichageGrilleFlottant(res);
-		
-		// res_trans = transposition_matrice(res);
-		// fprintf(stderr, "transposé:\n");
-		// affichageGrilleFlottant(res_trans);
-		
-		// res = multiplication_matrice_matrice(res, res_trans);
-		// fprintf(stderr, "multiplication:\n");
-		// affichageGrilleFlottant(res);
-
-		// Table_flottant x = getCoordX(a->m_tab_points_approx);
-		// Table_flottant result = multiplication_matrice_vecteur(res, x);
-		// affichageTableFlottant(result);
-
-		a->m_tab_points_point_controle = calcul(a->m_degre, a->m_tab_points_approx);
-		a->m_tab_courbe_Approx = calcul_bezier(a->m_tab_points_approx, a->m_nb_points_a_afficher);
-		
-		//affichageTableQuadruplet(&point_controle);
-
-
+		a->m_tab_points_point_controle = calcul(a->m_degre, a->m_tab_points_approx, a->m_uniforme);
+		a->m_tab_courbe_Approx = calcul_bezier(a->m_tab_points_point_controle, a->m_nb_points_a_afficher);
 	}
 }
 
@@ -123,6 +81,7 @@ CLASSE(Approximation, struct approximation,
 	CHAMP(m_nb_points_a_afficher, LABEL("Nombre de points à afficher: ") L_entier Affiche Edite Sauve DEFAUT("30"))  
 	CHAMP(m_affiche_points_controle, LABEL("Affichage des points de contrôle") L_booleen Edite DEFAUT("0"))
 	CHAMP(m_tab_points_approx, LABEL("Point") L_table_point P_table_quadruplet Extrait Obligatoire Edite Sauve)
+	CHAMP(m_uniforme, LABEL("Uniforme") L_booleen Edite DEFAUT("1"))
 
 	CHANGEMENT(changement)
 	CHAMP_VIRTUEL(L_affiche_gl(affiche_approximation))

@@ -10,8 +10,10 @@ Table_flottant multiplication_matrice_vecteur(Grille_flottant* g, Table_flottant
 Grille_flottant transposition_matrice(Grille_flottant* matrice);
 int factorielle( int n);
 double bernstein( int i,  int degre, double u);
-Grille_flottant creerMatriceCoeffBernstein( int degre,  int nombrePoint);
-Table_quadruplet calcul(int degre, Table_quadruplet tab);
+Grille_flottant creerMatriceCoeffBernstein( int degre, Booleen uniforme, Table_quadruplet tab);
+Table_quadruplet calcul(int degre, Table_quadruplet tab, Booleen uniforme);
+
+double calculDistance(Quadruplet* q1, Quadruplet* q2);
 
 void affichageGrilleFlottant(Grille_flottant* g);
 void affichageTableFlottant(Table_flottant* tab);
